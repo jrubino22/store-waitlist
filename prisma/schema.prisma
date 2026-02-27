@@ -1,23 +1,39 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// prisma/schema.prisma
 
-generator client {
-  provider = "prisma-client-js"
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
-datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+enum WaitlistStatus {
+  WAITING
+  IN_SERVICE
+  DONE
+}
+
+model WaitlistEntry {
+  id            String         @id @default(cuid())
+  locationId    Int
+  customerName  String
+  customerEmail String?
+  notes         String?
+  status        WaitlistStatus @default(WAITING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([locationId, status, createdAt])
 }
 
 model Session {
-  id            String    @id
+  id            String   @id
   shop          String
   state         String
-  isOnline      Boolean   @default(false)
+  isOnline      Boolean  @default(false)
   scope         String?
   expires       DateTime?
   accessToken   String
@@ -25,10 +41,8 @@ model Session {
   firstName     String?
   lastName      String?
   email         String?
-  accountOwner  Boolean   @default(false)
+  accountOwner  Boolean  @default(false)
   locale        String?
-  collaborator  Boolean?  @default(false)
-  emailVerified Boolean?  @default(false)
-  refreshToken        String?
-  refreshTokenExpires DateTime?
+  collaborator  Boolean? @default(false)
+  emailVerified Boolean? @default(false)
 }

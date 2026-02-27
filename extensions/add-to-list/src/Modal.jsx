@@ -8,25 +8,33 @@ export default async () => {
 };
 
 function Extension() {
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [partySize, setPartySize] = useState("1");
+  const [customerFirstName, setCustomerFirstName] = useState("");
+  const [customerLastName, setCustomerLastName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
   const [notes, setNotes] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  // Backend expects:
+  // { locationId, customerName, customerEmail, notes }
+  const customerName = useMemo(() => {
+    return `${customerFirstName}`.trim() && `${customerLastName}`.trim()
+      ? `${customerFirstName.trim()} ${customerLastName.trim()}`
+      : "";
+  }, [customerFirstName, customerLastName]);
+
   const canSubmit = useMemo(() => {
-    return customerName.trim().length > 0 && !submitting;
+    return customerName.length > 0 && !submitting;
   }, [customerName, submitting]);
 
   async function handleSubmit() {
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (!customerName.trim()) {
-      setErrorMsg("Customer name is required.");
+    if (!customerFirstName.trim() || !customerLastName.trim()) {
+      setErrorMsg("Customer first name and last name are required.");
       return;
     }
 
@@ -40,10 +48,18 @@ function Extension() {
         return;
       }
 
+      const session = await shopify.session.getCurrentSession();
+      const locationId = session?.locationId;
+
+      if (!locationId) {
+        setErrorMsg("Could not determine the current location in POS.");
+        return;
+      }
+
       const payload = {
-        customerName: customerName.trim(),
-        customerPhone: customerPhone.trim() ? customerPhone.trim() : null,
-        partySize: Number.isFinite(Number(partySize)) ? Number(partySize) : 1,
+        locationId,
+        customerName,
+        customerEmail: customerEmail.trim() ? customerEmail.trim() : null,
         notes: notes.trim() ? notes.trim() : null,
       };
 
@@ -60,9 +76,7 @@ function Extension() {
 
       if (!res.ok) {
         const msg =
-          data?.error ||
-          data?.message ||
-          `Request failed (status ${res.status}).`;
+          data?.error || data?.message || `Request failed (status ${res.status}).`;
         setErrorMsg(msg);
         return;
       }
@@ -70,9 +84,9 @@ function Extension() {
       setSuccessMsg("Added to waitlist.");
 
       // Clear form for quick repeat entries
-      setCustomerName("");
-      setCustomerPhone("");
-      setPartySize("1");
+      setCustomerFirstName("");
+      setCustomerLastName("");
+      setCustomerEmail("");
       setNotes("");
     } catch (err) {
       setErrorMsg("Network error. Please try again.");
@@ -96,26 +110,26 @@ function Extension() {
           >
             <s-box gap="small">
               <s-text-field
-                label="Customer name"
-                value={customerName}
-                onChange={setCustomerName}
-                placeholder="Jane Doe"
+                label="Customer first name"
+                value={customerFirstName}
+                onChange={setCustomerFirstName}
+                placeholder="Jane"
                 required
               />
 
               <s-text-field
-                label="Phone (optional)"
-                value={customerPhone}
-                onChange={setCustomerPhone}
-                placeholder="555-555-5555"
+                label="Customer last name"
+                value={customerLastName}
+                onChange={setCustomerLastName}
+                placeholder="Doe"
+                required
               />
 
               <s-text-field
-                label="Party size"
-                value={partySize}
-                onChange={setPartySize}
-                inputMode="numeric"
-                placeholder="1"
+                label="Email (optional)"
+                value={customerEmail}
+                onChange={setCustomerEmail}
+                placeholder="jane@example.com"
               />
 
               <s-text-area

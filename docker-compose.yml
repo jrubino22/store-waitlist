@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shopify
+      POSTGRES_PASSWORD: shopify
+      POSTGRES_DB: waitlist_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - waitlist_pgdata:/var/lib/postgresql/data
+
+volumes:
+  waitlist_pgdata:
