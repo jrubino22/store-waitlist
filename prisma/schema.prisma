@@ -18,7 +18,7 @@ enum WaitlistStatus {
 
 model WaitlistEntry {
   id            String         @id @default(cuid())
-  locationId    Int
+  locationId    String
   customerName  String
   customerEmail String?
   notes         String?

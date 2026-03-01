@@ -20,23 +20,13 @@ export type WaitlistEntryModel = runtime.Types.Result.DefaultSelection<Prisma.$W
 
 export type AggregateWaitlistEntry = {
   _count: WaitlistEntryCountAggregateOutputType | null
-  _avg: WaitlistEntryAvgAggregateOutputType | null
-  _sum: WaitlistEntrySumAggregateOutputType | null
   _min: WaitlistEntryMinAggregateOutputType | null
   _max: WaitlistEntryMaxAggregateOutputType | null
 }
 
-export type WaitlistEntryAvgAggregateOutputType = {
-  locationId: number | null
-}
-
-export type WaitlistEntrySumAggregateOutputType = {
-  locationId: number | null
-}
-
 export type WaitlistEntryMinAggregateOutputType = {
   id: string | null
-  locationId: number | null
+  locationId: string | null
   customerName: string | null
   customerEmail: string | null
   notes: string | null
@@ -47,7 +37,7 @@ export type WaitlistEntryMinAggregateOutputType = {
 
 export type WaitlistEntryMaxAggregateOutputType = {
   id: string | null
-  locationId: number | null
+  locationId: string | null
   customerName: string | null
   customerEmail: string | null
   notes: string | null
@@ -68,14 +58,6 @@ export type WaitlistEntryCountAggregateOutputType = {
   _all: number
 }
 
-
-export type WaitlistEntryAvgAggregateInputType = {
-  locationId?: true
-}
-
-export type WaitlistEntrySumAggregateInputType = {
-  locationId?: true
-}
 
 export type WaitlistEntryMinAggregateInputType = {
   id?: true
@@ -149,18 +131,6 @@ export type WaitlistEntryAggregateArgs<ExtArgs extends runtime.Types.Extensions.
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: WaitlistEntryAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: WaitlistEntrySumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: WaitlistEntryMinAggregateInputType
@@ -191,15 +161,13 @@ export type WaitlistEntryGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   _count?: WaitlistEntryCountAggregateInputType | true
-  _avg?: WaitlistEntryAvgAggregateInputType
-  _sum?: WaitlistEntrySumAggregateInputType
   _min?: WaitlistEntryMinAggregateInputType
   _max?: WaitlistEntryMaxAggregateInputType
 }
 
 export type WaitlistEntryGroupByOutputType = {
   id: string
-  locationId: number
+  locationId: string
   customerName: string
   customerEmail: string | null
   notes: string | null
@@ -207,8 +175,6 @@ export type WaitlistEntryGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: WaitlistEntryCountAggregateOutputType | null
-  _avg: WaitlistEntryAvgAggregateOutputType | null
-  _sum: WaitlistEntrySumAggregateOutputType | null
   _min: WaitlistEntryMinAggregateOutputType | null
   _max: WaitlistEntryMaxAggregateOutputType | null
 }
@@ -233,7 +199,7 @@ export type WaitlistEntryWhereInput = {
   OR?: Prisma.WaitlistEntryWhereInput[]
   NOT?: Prisma.WaitlistEntryWhereInput | Prisma.WaitlistEntryWhereInput[]
   id?: Prisma.StringFilter<"WaitlistEntry"> | string
-  locationId?: Prisma.IntFilter<"WaitlistEntry"> | number
+  locationId?: Prisma.StringFilter<"WaitlistEntry"> | string
   customerName?: Prisma.StringFilter<"WaitlistEntry"> | string
   customerEmail?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   notes?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
@@ -258,7 +224,7 @@ export type WaitlistEntryWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.WaitlistEntryWhereInput | Prisma.WaitlistEntryWhereInput[]
   OR?: Prisma.WaitlistEntryWhereInput[]
   NOT?: Prisma.WaitlistEntryWhereInput | Prisma.WaitlistEntryWhereInput[]
-  locationId?: Prisma.IntFilter<"WaitlistEntry"> | number
+  locationId?: Prisma.StringFilter<"WaitlistEntry"> | string
   customerName?: Prisma.StringFilter<"WaitlistEntry"> | string
   customerEmail?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   notes?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
@@ -277,10 +243,8 @@ export type WaitlistEntryOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.WaitlistEntryCountOrderByAggregateInput
-  _avg?: Prisma.WaitlistEntryAvgOrderByAggregateInput
   _max?: Prisma.WaitlistEntryMaxOrderByAggregateInput
   _min?: Prisma.WaitlistEntryMinOrderByAggregateInput
-  _sum?: Prisma.WaitlistEntrySumOrderByAggregateInput
 }
 
 export type WaitlistEntryScalarWhereWithAggregatesInput = {
@@ -288,7 +252,7 @@ export type WaitlistEntryScalarWhereWithAggregatesInput = {
   OR?: Prisma.WaitlistEntryScalarWhereWithAggregatesInput[]
   NOT?: Prisma.WaitlistEntryScalarWhereWithAggregatesInput | Prisma.WaitlistEntryScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"WaitlistEntry"> | string
-  locationId?: Prisma.IntWithAggregatesFilter<"WaitlistEntry"> | number
+  locationId?: Prisma.StringWithAggregatesFilter<"WaitlistEntry"> | string
   customerName?: Prisma.StringWithAggregatesFilter<"WaitlistEntry"> | string
   customerEmail?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
@@ -299,7 +263,7 @@ export type WaitlistEntryScalarWhereWithAggregatesInput = {
 
 export type WaitlistEntryCreateInput = {
   id?: string
-  locationId: number
+  locationId: string
   customerName: string
   customerEmail?: string | null
   notes?: string | null
@@ -310,7 +274,7 @@ export type WaitlistEntryCreateInput = {
 
 export type WaitlistEntryUncheckedCreateInput = {
   id?: string
-  locationId: number
+  locationId: string
   customerName: string
   customerEmail?: string | null
   notes?: string | null
@@ -321,7 +285,7 @@ export type WaitlistEntryUncheckedCreateInput = {
 
 export type WaitlistEntryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  locationId?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -332,7 +296,7 @@ export type WaitlistEntryUpdateInput = {
 
 export type WaitlistEntryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  locationId?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -343,7 +307,7 @@ export type WaitlistEntryUncheckedUpdateInput = {
 
 export type WaitlistEntryCreateManyInput = {
   id?: string
-  locationId: number
+  locationId: string
   customerName: string
   customerEmail?: string | null
   notes?: string | null
@@ -354,7 +318,7 @@ export type WaitlistEntryCreateManyInput = {
 
 export type WaitlistEntryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  locationId?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -365,7 +329,7 @@ export type WaitlistEntryUpdateManyMutationInput = {
 
 export type WaitlistEntryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  locationId?: Prisma.IntFieldUpdateOperationsInput | number
+  locationId?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -383,10 +347,6 @@ export type WaitlistEntryCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type WaitlistEntryAvgOrderByAggregateInput = {
-  locationId?: Prisma.SortOrder
 }
 
 export type WaitlistEntryMaxOrderByAggregateInput = {
@@ -411,20 +371,8 @@ export type WaitlistEntryMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type WaitlistEntrySumOrderByAggregateInput = {
-  locationId?: Prisma.SortOrder
-}
-
 export type StringFieldUpdateOperationsInput = {
   set?: string
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 export type NullableStringFieldUpdateOperationsInput = {
@@ -492,7 +440,7 @@ export type $WaitlistEntryPayload<ExtArgs extends runtime.Types.Extensions.Inter
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    locationId: number
+    locationId: string
     customerName: string
     customerEmail: string | null
     notes: string | null
@@ -923,7 +871,7 @@ export interface Prisma__WaitlistEntryClient<T, Null = never, ExtArgs extends ru
  */
 export interface WaitlistEntryFieldRefs {
   readonly id: Prisma.FieldRef<"WaitlistEntry", 'String'>
-  readonly locationId: Prisma.FieldRef<"WaitlistEntry", 'Int'>
+  readonly locationId: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly customerName: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly customerEmail: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly notes: Prisma.FieldRef<"WaitlistEntry", 'String'>

@@ -1,53 +1,95 @@
 import db from "../db.server";
 import { requirePosIdToken } from "../services/pos-auth.server";
+import { corsJson, withCors } from "../lib/cors.server";
 
-function json(data: unknown, init?: ResponseInit) {
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      ...(init?.headers ?? {}),
-    },
+export async function loader({ request }: { request: Request }) {
+  return withCors(request, async () => {
+    if (request.method !== "GET") {
+      return corsJson(
+        request,
+        { error: `Method ${request.method} not allowed.` },
+        { status: 405 },
+      );
+    }
+
+    await requirePosIdToken(request);
+
+    const url = new URL(request.url);
+    const locationId = String(url.searchParams.get("locationId") ?? "").trim();
+
+    if (!locationId) {
+      return corsJson(
+        request,
+        { error: "locationId query param is required." },
+        { status: 400 },
+      );
+    }
+
+    const items = await db.waitlistEntry.findMany({
+      where: {
+        locationId,
+        status: {
+          in: ["WAITING", "IN_SERVICE"],
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    return corsJson(request, { items });
   });
 }
 
-// POST /api/waitlist
 export async function action({ request }: { request: Request }) {
-  // Auth from POS session token (we’re keeping this minimal for now)
-  await requirePosIdToken(request);
+  return withCors(request, async () => {
+    await requirePosIdToken(request);
 
-  const body = await request.json().catch(() => ({}));
+    const body = await request.json().catch(() => ({}));
+    console.log('body server', body);
 
-  const locationId = Number(body?.locationId);
-  const customerName = String(body?.customerName ?? "").trim();
-  const customerEmail = body?.customerEmail ? String(body.customerEmail).trim() : null;
-  const notes = body?.notes ? String(body.notes).trim() : null;
+    const locationId = String(body?.locationId);
+    const customerName = String(body?.customerName ?? "").trim();
+    const customerEmail = body?.customerEmail
+      ? String(body.customerEmail).trim()
+      : null;
+    const notes = body?.notes ? String(body.notes).trim() : null;
 
-  if (!Number.isFinite(locationId)) {
-    return json({ error: "locationId is required (number)." }, { status: 400 });
-  }
-  if (!customerName) {
-    return json({ error: "customerName is required." }, { status: 400 });
-  }
+    if (!locationId) {
+      return corsJson(
+        request,
+        { error: "locationId is required (number)." },
+        { status: 400 },
+      );
+    }
 
-  const created = await db.waitlistEntry.create({
-    data: {
-      locationId,
-      customerName,
-      customerEmail,
-      notes,
-      status: "WAITING",
-    },
+    if (!customerName) {
+      return corsJson(
+        request,
+        { error: "customerName is required." },
+        { status: 400 },
+      );
+    }
+
+    const created = await db.waitlistEntry.create({
+      data: {
+        locationId,
+        customerName,
+        customerEmail,
+        notes,
+        status: "WAITING",
+      },
+    });
+
+    console.log(
+      JSON.stringify({
+        msg: "waitlist.created",
+        id: created.id,
+        locationId,
+        ts: new Date().toISOString(),
+      }),
+    );
+
+    return corsJson(request, { item: created }, { status: 201 });
   });
-
-  console.log(
-    JSON.stringify({
-      msg: "waitlist.created",
-      id: created.id,
-      locationId,
-      ts: new Date().toISOString(),
-    })
-  );
-
-  return json({ item: created }, { status: 201 });
 }
