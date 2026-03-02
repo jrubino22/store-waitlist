@@ -1,36 +1,52 @@
 import { WaitlistStatus } from "app/generated/prisma/client";
 import db from "../db.server";
 import { requirePosIdToken } from "../services/pos-auth.server";
+import { corsJson, withCors } from "../lib/cors.server";
 
-function json(data: unknown, init?: ResponseInit) {
-  return new Response(JSON.stringify(data), {
-    ...init,
-    headers: {
-      "content-type": "application/json; charset=utf-8",
-      ...(init?.headers ?? {}),
-    },
+export async function loader({ request, params }: { request: Request; params: { id?: string } }) {
+  return withCors(request, async () => {
+    await requirePosIdToken(request);
+
+    const id = params.id;
+    if (!id) return corsJson(request, { error: "Missing id" }, { status: 400 });
+
+    const item = await db.waitlistEntry.findUnique({ where: { id } });
+    if (!item) return corsJson(request, { error: "Not found" }, { status: 404 });
+
+    return corsJson(request, { item });
   });
 }
 
 export async function action({ request, params }: { request: Request; params: { id?: string } }) {
-  await requirePosIdToken(request);
+  return withCors(request, async () => {
 
-  const id = params.id;
-  if (!id) return json({ error: "Missing id" }, { status: 400 });
+    if (request.method.toUpperCase() !== "PATCH") {
+      return corsJson(request, { error: `Method ${request.method} not allowed.` }, { status: 405 });
+    }
 
-  const body = await request.json().catch(() => ({}));
-  const status = String(body?.status ?? "").toUpperCase();
+    await requirePosIdToken(request);
 
-  if (!["WAITING", "IN_SERVICE", "DONE"].includes(status)) {
-    return json({ error: "Invalid status" }, { status: 400 });
-  }
+    const id = params.id;
+    if (!id) return corsJson(request, { error: "Missing id" }, { status: 400 });
 
-  const updated = await db.waitlistEntry.update({
-    where: { id },
-    data: { status: status as WaitlistStatus },
+    const body = await request.json().catch(() => ({}));
+    const status = String(body?.status ?? "").toUpperCase();
+    const notes = body?.notes !== undefined ? String(body.notes).trim() : undefined;
+
+    if (!["WAITING", "IN_SERVICE", "DONE"].includes(status)) {
+      return corsJson(request, { error: "Invalid status" }, { status: 400 });
+    }
+
+    const updated = await db.waitlistEntry.update({
+      where: { id },
+      data: {
+        status: status as WaitlistStatus,
+        ...(notes !== undefined ? { notes: notes || null } : {}),
+      },
+    });
+
+    console.log(JSON.stringify({ msg: "waitlist.updated", id, status, ts: new Date().toISOString() }));
+
+    return corsJson(request, { item: updated });
   });
-
-  console.log(JSON.stringify({ msg: "waitlist.updated", id, status, ts: new Date().toISOString() }));
-
-  return json({ item: updated });
 }

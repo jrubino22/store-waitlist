@@ -3,6 +3,7 @@ import "@shopify/ui-extensions/preact";
 import { render } from "preact";
 import QueueListScreen from "./screens/QueueListScreen.jsx";
 import AddCustomerScreen from "./screens/AddCustomerScreen.jsx";
+import CustomerInfoScreen from "./screens/CustomerInfoScreen.jsx";
 
 export default async () => {
   render(<Extension />, document.body);
@@ -13,6 +14,10 @@ function Extension() {
 
   if (url.includes("AddCustomer")) {
     return <AddCustomerScreen />;
+  }
+
+  if (url.includes("CustomerInfo")) {
+    return <CustomerInfoScreen />;
   }
 
   return <QueueListScreen />;

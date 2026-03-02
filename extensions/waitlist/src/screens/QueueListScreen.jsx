@@ -66,6 +66,37 @@ export default function QueueListScreen() {
     loadQueue();
   }, []);
 
+  async function handleUpdate(id) {
+    setErrorMsg("");
+    try {
+      const token = await shopify.session.getSessionToken();
+      const res = await fetch(`/api/waitlist/${id}`, {
+        method: "PATCH",
+        mode: "cors",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "IN_SERVICE" }),
+      });
+  
+      const data = await res.json().catch(() => ({}));
+  
+      if (!res.ok) {
+        setErrorMsg(data?.error || `Request failed (status ${res.status}).`);
+        return;
+      }
+  
+      navigation.navigate(`CustomerInfo?id=${id}`);
+    } catch (err) {
+      setErrorMsg("Network error. Please try again.");
+    }
+  }
+
+  function handleInfo(id) {
+    navigation.navigate(`CustomerInfo?id=${id}`);
+  }
+
   return (
     <s-page heading="Waitlist">
       <s-scroll-box>
@@ -78,7 +109,7 @@ export default function QueueListScreen() {
             </s-box>
           ) : null}
 
-          <s-box gap="small">
+          <s-stack direction="block" gap="small">
             <s-button kind="primary" onClick={() => navigation.navigate("AddCustomer")}>
               Add customer
             </s-button>
@@ -86,23 +117,34 @@ export default function QueueListScreen() {
             <s-button onClick={loadQueue} loading={loading}>
               Refresh
             </s-button>
-          </s-box>
+          </s-stack>
 
           {loading ? (
             <s-text>Loading queue...</s-text>
           ) : items.length === 0 ? (
             <s-text>No one is currently on the waitlist.</s-text>
           ) : (
-            <s-box gap="small">
+            <s-stack padding="small" direction="block" gap="small">
               {items.map((item) => (
                 <s-box key={item.id} padding="small">
-                  <s-text>{item.customerName}</s-text>
-                  <s-text>{item.status}</s-text>
-                  {item.customerEmail ? <s-text>{item.customerEmail}</s-text> : null}
-                  {item.notes ? <s-text>{item.notes}</s-text> : null}
+                  <s-stack direction="inline" justifyContent="space-between" alignItems="center">
+                    <s-text variant="headingSmall">{item.customerName}</s-text>
+                    {item.status === 'WAITING' && (
+                      <s-badge tone="info">Waiting</s-badge>
+                    )}
+                    {item.status === 'IN_SERVICE' && (
+                      <s-badge tone="success">In Service</s-badge>
+                    )}
+                    {item.status === 'WAITING' && (
+                       <s-button kind="plain" onClick={() => handleUpdate(item.id)}>Serve</s-button>
+                    )}
+                    {item.status === 'IN_SERVICE' && (
+                      <s-button kind="plain" onClick={() => handleInfo(item.id)}>Info</s-button>
+                    )}
+                  </s-stack>
                 </s-box>
               ))}
-            </s-box>
+            </s-stack>
           )}
         </s-box>
       </s-scroll-box>

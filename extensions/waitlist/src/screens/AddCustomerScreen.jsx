@@ -127,7 +127,7 @@ export default function AddCustomerScreen() {
 
   return (
     <s-scroll-box>
-      <s-box padding="small" gap="small">
+      <s-stack direction="block" padding="small" gap="small">
         {errorMsg ? <s-banner tone="critical">{errorMsg}</s-banner> : null}
         {successMsg ? <s-banner tone="success">{successMsg}</s-banner> : null}
 
@@ -179,7 +179,7 @@ export default function AddCustomerScreen() {
         <s-button onClick={() => navigation.back()}>
             Back
         </s-button>
-      </s-box>
+      </s-stack>
     </s-scroll-box>
   );
 }
