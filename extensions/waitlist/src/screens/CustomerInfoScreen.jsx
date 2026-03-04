@@ -17,7 +17,7 @@ function getStringValue(value) {
 const STATUS_OPTIONS = ["WAITING", "IN_SERVICE", "DONE"];
 
 export default function CustomerInfoScreen() {
-  const id = new URL(navigation.currentEntry.url).searchParams.get("id") ?? "";
+  const id = new URLSearchParams(navigation.currentEntry.url.split("?")[1]).get("id") ?? "";
 
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
@@ -30,44 +30,49 @@ export default function CustomerInfoScreen() {
   const [debugMsg, setDebugMsg] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+  
     async function loadEntry() {
       setDebugMsg("Loading customer...");
       try {
         const token = await shopify.session.getSessionToken();
         if (!token) {
-          setErrorMsg("You don't have permission to use this app.");
-          setDebugMsg("No session token returned.");
+          if (!cancelled) setErrorMsg("You don't have permission to use this app.");
           return;
         }
-
+  
         const res = await fetch(`/api/waitlist/${id}`, {
           method: "GET",
           mode: "cors",
           headers: { Authorization: `Bearer ${token}` },
         });
-
+  
         const data = await res.json().catch(() => ({}));
-
+  
+        if (cancelled) return;
+  
         if (!res.ok) {
           setErrorMsg(data?.error || `Request failed (status ${res.status}).`);
-          setDebugMsg(`Fetch failed with status ${res.status}.`);
           return;
         }
-
+  
         setCustomerName(data.item.customerName ?? "");
         setCustomerEmail(data.item.customerEmail ?? "");
         setStatus(data.item.status ?? "WAITING");
         setNotes(data.item.notes ?? "");
         setDebugMsg("Customer loaded.");
       } catch (err) {
-        setErrorMsg("Network error loading customer.");
-        setDebugMsg(`Caught error: ${String(err?.message || err)}`);
+        if (!cancelled) setErrorMsg("Network error loading customer.");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
-
+  
     loadEntry();
+  
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   async function handleSubmit() {
@@ -143,10 +148,14 @@ export default function CustomerInfoScreen() {
 
             <s-choice-list
               label="Status"
-              value={status}
+              key={status}
+              defaultValue={status}
               onInput={(val) => setStatus(getStringValue(val))}
-              choices={STATUS_OPTIONS.map((s) => ({ label: s, value: s }))}
-            />
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <s-choice key={s} value={s}>{s}</s-choice>
+              ))}
+            </s-choice-list>
 
             <s-text-area
               label="Notes (optional)"
