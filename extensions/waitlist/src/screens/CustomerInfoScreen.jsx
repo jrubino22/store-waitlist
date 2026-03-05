@@ -55,6 +55,8 @@ export default function CustomerInfoScreen() {
           setErrorMsg(data?.error || `Request failed (status ${res.status}).`);
           return;
         }
+
+        console.log('data 123', data);
   
         setCustomerName(data.item.customerName ?? "");
         setCustomerEmail(data.item.customerEmail ?? "");
@@ -65,6 +67,7 @@ export default function CustomerInfoScreen() {
         if (!cancelled) setErrorMsg("Network error loading customer.");
       } finally {
         if (!cancelled) setLoading(false);
+        console.log('status 123', status);
       }
     }
   
@@ -149,11 +152,11 @@ export default function CustomerInfoScreen() {
             <s-choice-list
               label="Status"
               key={status}
-              defaultValue={status}
-              onInput={(val) => setStatus(getStringValue(val))}
+              value={status}
+              onInput={(event) => setStatus(event.currentTarget.values[0])}
             >
               {STATUS_OPTIONS.map((s) => (
-                <s-choice key={s} value={s}>{s}</s-choice>
+                <s-choice key={s} value={s} selected={status === s}>{s}</s-choice>
               ))}
             </s-choice-list>
 

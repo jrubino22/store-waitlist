@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "/Users/jrubino/Desktop/personal/waitlist-app/store-waitlist/app/generated/prisma",
+      "value": "/Users/joeyrubino/Desktop/code/pos-app/store-waitlist/app/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -37,7 +37,7 @@ const config: runtime.GetPrismaClientConfig = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/jrubino/Desktop/personal/waitlist-app/store-waitlist/prisma/schema.prisma",
+    "sourceFilePath": "/Users/joeyrubino/Desktop/code/pos-app/store-waitlist/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../../../prisma",
