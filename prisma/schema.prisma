@@ -16,6 +16,13 @@ enum WaitlistStatus {
   DONE
 }
 
+enum ShopifyCustomerStatus {
+  CREATED
+  EXISTING
+  FAILED
+  SKIPPED
+}
+
 model WaitlistEntry {
   id            String         @id @default(cuid())
   locationId    String
@@ -23,6 +30,8 @@ model WaitlistEntry {
   customerEmail String?
   notes         String?
   status        WaitlistStatus @default(WAITING)
+  shopifyCustomerId     String?
+  shopifyCustomerStatus ShopifyCustomerStatus?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 

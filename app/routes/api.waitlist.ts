@@ -50,10 +50,17 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const [firstName, ...rest] = customerName.split(" ");
   findOrCreateShopifyCustomer({ shop, firstName, lastName: rest.join(" ") || "", email: customerEmail })
-    .then((shopifyCustomerId) => {
-      if (shopifyCustomerId) {
-        console.log(JSON.stringify({ msg: "shopify.customer.synced", shopifyCustomerId }));
-      }
+    .then(async (result) => {
+      await db.waitlistEntry.update({
+        where: { id: created.id },
+        data: {
+          shopifyCustomerStatus: result.status,
+          shopifyCustomerId: result.status === "CREATED" || result.status === "EXISTING"
+            ? result.shopifyCustomerId
+            : null,
+        },
+      });
+      console.log(JSON.stringify({ msg: "shopify.customer.synced", result }));
     })
     .catch((err) => {
       console.error(JSON.stringify({ msg: "shopify.customer.sync.error", error: String(err) }));
